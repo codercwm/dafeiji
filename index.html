@@ -4,63 +4,142 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<style>
+		body{ 
+			text-align:center
+			width: 100%;
+            height: 100%;
+            margin: 0; 
+            padding: 0;
+            overflow:hidden;
+		}
 		#game{
-			width:512px;
+			/*width:512px;
 			height:700px;
-			border:10px solid #ccc;
-			background:url('./images/bg2.jpg') no-repeat 0px -836px;
+			border:10px solid #ccc;*/
+			width:100%;
+			height:100%;
+			/*background:url('./images/bg2.jpg') no-repeat bottom left;
+			background-size:100% auto;*/
 			position:absolute;
-			overflow:hidden;
+			/*overflow:hidden;*/
+		}
+		#backgroundImg{
+			width:100%;
+			position: absolute;
+			bottom: 0;
 		}
 		#player{
 			position:absolute;
-			top:600px;
-			left:203px;
+			bottom:0;
+			left: 50%;
+			width:10%;
+			height: 10%;
 		}
 		#player2{
 			position:absolute;
-			top:600px;
-			left:203px;
+			bottom:0;
+			left: 50%;
+			width:10%;
+			height: 10%;
 		}
+		#shade{
+			width:100%;
+			height:100%;
+			position:absolute;
+			background: #ccc;
+			z-index: 999999;
+			opacity: 0.8;
+		}
+		#button{
+			margin-top:20%;
+			text-align: center;
+		}
+		.eshot{
+			width: 1%;
+			height: 2%;
+		}
+		.enemy{
+			width:10%;
+			height: 10%;
+		}
+		#dazhaoButton{
+			position: absolute;
+			bottom:0;
+			right: 0;
+			padding: 5px 20px;
+			width: 30px;
+			height: 40px;
+			font-size:10px;
+			margin: 0;
+			padding: 0;
+			text-align: center;
+			background: #ccc;
+		}
+
 	</style>
 </head>
 <body>
-提示：上下左右移动，F大招
+	<div id='shade' style="">
+		<div id='button'>
+			<button onclick="start()">开始游戏</button>
+			<button onclick="invite">邀请好友一起玩</button>
+		</div>
+	</div>
+	<img id="backgroundImg" src="./images/bg2.jpg">
+
 	<div id="game">
-		<button onclick="alert('点击继续');">暂停</button>
-		<button onclick="window.location.reload();">重新开始</button>
-		
 	<!-- 分数 -->
-		<span style="position:absolute;font-size:30px;color:#f90;">0分</span>
+		<span style="right:0;position:absolute;font-size:30px;color:#eee;">0</span>
 	<!-- 子弹 -->
-		<img src="./images/eshot.png" id='eshot0' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot1' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot2' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot3' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot4' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot5' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot6' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot7' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot8' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot9' style="display:none;position:absolute;">
-		<img src="./images/eshot.png" id='eshot10' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot0' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot1' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot2' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot3' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot4' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot5' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot6' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot7' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot8' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot9' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot10' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot11' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot12' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot13' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot14' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot15' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot16' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot17' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot18' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot19' class='eshot' style="display:none;position:absolute;">
+		<img src="./images/eshot.png" id='eshot20' class='eshot' style="display:none;position:absolute;">
 	
 	<!-- 敌机 -->
-		<img src="./images/e1.png" id="e0" style="display:none;position:absolute;">
-		<img src="./images/e2.png" id="e1" style="display:none;position:absolute;">
-		<img src="./images/e3.png" id="e2" style="display:none;position:absolute;">
-		<img src="./images/e1.png" id="e3" style="display:none;position:absolute;">
-		<img src="./images/e2.png" id="e4" style="display:none;position:absolute;">
-		<img src="./images/e3.png" id="e5" style="display:none;position:absolute;">
+		<img src="./images/e1.png" id="e0" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e2.png" id="e1" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e3.png" id="e2" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e1.png" id="e3" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e2.png" id="e4" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e3.png" id="e5" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e1.png" id="e6" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e2.png" id="e7" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e3.png" id="e8" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e1.png" id="e9" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e2.png" id="e10" class='enemy' style="display:none;position:absolute;">
+		<img src="./images/e3.png" id="e11" class='enemy' style="display:none;position:absolute;">
 
 	<!-- 玩家 -->
-		<img src="./images/me.png" id="player" />
-		<img src="./images/me.png" id="player2" />
-	<!-- 爆炸 -->
-		<!-- <img src="./images/boom.gif" width="250" height="150" style="position:absolute;display:none;" id="boom"> -->
-		
+		<img src="./images/player.png" id="player" />
+		<img src="./images/player.png" id="player2" />
 	</div>
-	
+	<div id='dazhaoButton'>
+		<span>大招(F)</span>
+		<span id='canDazhao'></span>/<span id="canDazhaoIni"></span>
+	</div>
 </body>
 <script src="js/js.js"></script>
+<script type="text/javascript">
+	window.onload = function(){
+
+	}
+</script>
 </html>

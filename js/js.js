@@ -1,30 +1,51 @@
-window.onload=function(){
-	//分数
-	var fenshu = 0;
-	//背景移动速度
-	var bgSpeed = 5;
-	//敌机移动速度
-	var enemySpeed = 5;
-	//炮弹移动速度
-	var bulletSpeed = 10;
+//存够10个可以放大招
+var canDazhaoIni = 10;
+var canDazhao = 0;
+document.getElementById('canDazhao').innerHTML = canDazhao;
+document.getElementById('canDazhaoIni').innerHTML = canDazhaoIni;
+//分数
+var fenshu = 0;
+//背景移动速度
+var bgSpeedIni = 5;
+var bgSpeed = bgSpeedIni;
+//敌机移动速度
+var enemySpeedIni = 5;
+var enemySpeed = enemySpeedIni;
+//炮弹移动速度
+var bulletSpeedIni = 10;
+var bulletSpeed = bulletSpeedIni;
+var bulletNum = document.getElementsByClassName('eshot').length;
+var enemyNum = document.getElementsByClassName('enemy').length;
 
-	// 背景
+var start = function(){
+	document.getElementById('shade').style.display = 'none';
+
+	// 窗口
 	var game = document.getElementById('game');
 	var windowHeight = game.clientHeight;
 	var windowWidth = game.clientWidth;
-	var bg = -836;
+
+	// 背景图
+	var backgroundImg = document.getElementById('backgroundImg');
+
+	var backgroundImgPosition = 0;
 	// 背景图片移动
 	setInterval(function(){
-		bg += bgSpeed;
-		if(bg>-68)
+		backgroundImgPosition -= bgSpeed;
+		//图片是两张重复的图片合在一起，当滚动到中间位置的时候复位，实现连续滚动
+		if(backgroundImgPosition< (0-(backgroundImg.height/2)))
 		{
-			bg=-836;
+			backgroundImgPosition=0;
 		}
-		game.style.backgroundPosition='0px '+bg+'px';
+		backgroundImg.style.bottom=backgroundImgPosition+'px';
 	},20);
 
 	//大招进行中
 	var doingDazhao = null;
+	var dazhaoEshotRight = null;
+	var dazhaoEshotLeft = null;
+	var checkDazhaoEshot = null;
+	var dazhaoEshotFashe = null;
 
 	//战机操作类
 	function main(playerId){
@@ -46,7 +67,7 @@ window.onload=function(){
 			var y = this.player.offsetTop-(this.playerHeight/4);
 
 			//循环获取一颗空闲的子弹，把它放在飞机的前面
-			for(var i=0;i<11;i++)
+			for(var i=0;i<bulletNum;i++)
 			{
 				var eshot = document.getElementById('eshot'+i);
 				if(eshot.style.display=='none')
@@ -62,6 +83,7 @@ window.onload=function(){
 
 		//战机放大招
 		this.doDazhao = function(){
+
 			//不能和队友同时放大招
 			if(null!=doingDazhao){
 				return;
@@ -75,9 +97,10 @@ window.onload=function(){
 			enemySpeed = 0;
 			bgSpeed = 0;
 			
-			//把11颗炮弹全部召唤出来
-			var eshArr = new Array(11);
-			for(var i=0;i<11;i++)
+			//把颗炮弹全部召唤出来
+			var eshArr = new Array(bulletNum);
+
+			for(var i=0;i<bulletNum;i++)
 			{
 				var eshot = document.getElementById('eshot'+i);
 				eshArr[i] = eshot;
@@ -88,57 +111,80 @@ window.onload=function(){
 
 			var that = this;
 			//炮弹出现之后，一秒钟之后分散
+
 			doingDazhao = setTimeout(function(){
 
+				var dazhaoFashe1 = false;
+				var dazhaoFashe2 = false;
+
+				var forNum = parseInt(bulletNum/2);
+
 				//子弹向右边分散
-				De = setInterval(function(){
-					eshArr[1].style.left = eshArr[1].offsetLeft+1+'px';
-					eshArr[2].style.left = eshArr[2].offsetLeft+2+'px';
-					eshArr[3].style.left = eshArr[3].offsetLeft+3+'px';
-					eshArr[4].style.left = eshArr[4].offsetLeft+4+'px';
-					eshArr[5].style.left = eshArr[5].offsetLeft+5+'px';
-					if(eshArr[5].offsetLeft>485)
-					{
-						clearInterval(De);
+				dazhaoEshotRight = setInterval(function(){
+					var j = 1;
+					for(var i=1;i<=forNum;i++){
+						eshArr[i].style.left = eshArr[i].offsetLeft+j+'px';
+						j++;
 					}
+					
+					if(eshArr[forNum].offsetLeft>(windowWidth-20))
+					{
+						clearInterval(dazhaoEshotRight);
+						dazhaoEshotRight = null;
+						dazhaoFashe1 = true;
+					}	
 				},10);
 
 				//子弹向左边分散
-				De1 = setInterval(function(){
-					eshArr[6].style.left = eshArr[6].offsetLeft-1+'px';
-					eshArr[7].style.left = eshArr[7].offsetLeft-2+'px';
-					eshArr[8].style.left = eshArr[8].offsetLeft-3+'px';
-					eshArr[9].style.left = eshArr[9].offsetLeft-4+'px';
-					eshArr[10].style.left = eshArr[10].offsetLeft-5+'px';
-					if(eshArr[10].offsetLeft<20)
-					{
-						clearInterval(De1);
+				dazhaoEshotLeft = setInterval(function(){
+					var j = 1;
+					for(var i=forNum+1;i<=bulletNum-1;i++){
+						eshArr[i].style.left = eshArr[i].offsetLeft-j+'px';
+						j++;
 					}
+					
+					if(eshArr[bulletNum-1].offsetLeft<20)
+					{
+						clearInterval(dazhaoEshotLeft);
+						dazhaoEshotLeft = null;
+						dazhaoFashe2 = true;
+					}
+
 				},10);
 
 				//子弹去全部分散开之后才发射出去
-				d2 = setTimeout(function(){
-					d3 = setInterval(function(){
-						for(var bb=0;bb<11;bb++)
-						{
-							var eshotD = document.getElementById('eshot'+bb);
-							eshotD.style.top = eshotD.offsetTop-20+'px';
-							checkHit(eshotD,true);
-							if(eshotD.offsetTop<0)
-							{
-								eshotD.style.display = 'none';
-								enemySpeed = 5;
-								bulletSpeed = 10;
-								bgSpeed = 5;
-								clearTimeout(doingDazhao);
-								doingDazhao = null;
-								clearTimeout(d2);
-								clearInterval(d3);
-							}
-						}
-					},20);
+				checkDazhaoEshot = setInterval(function(){
+					if(dazhaoFashe1 && dazhaoFashe1 && (dazhaoEshotFashe==null)){
+
+						setTimeout(function(){
+							dazhaoEshotFashe = setInterval(function(){
+								for(var bb=0;bb<bulletNum;bb++)
+								{
+									var eshotD = document.getElementById('eshot'+bb);
+									eshotD.style.top = eshotD.offsetTop-20+'px';
+									checkHit(eshotD,true);
+									if(eshotD.offsetTop<0)
+									{
+										eshotD.style.display = 'none';
+										enemySpeed = enemySpeedIni;
+										bulletSpeed = bulletSpeedIni;
+										bgSpeed = bgSpeedIni;
+										clearTimeout(doingDazhao);
+										doingDazhao = null;
+										clearInterval(checkDazhaoEshot);
+										checkDazhaoEshot = null;
+										clearInterval(dazhaoEshotFashe);
+										dazhaoEshotFashe = null;
+										dazhaoFashe1 = false;
+										dazhaoFashe2 = false;
+									}
+								}
+							},10);
+						},500);
+						
+					}
 					
-				},1000);
+				},500);
 				
 			},1000);
 		}
@@ -146,31 +192,45 @@ window.onload=function(){
 		//传入一个敌机，检测被敌机撞
 		this.collision = function(enemy){
 			//自己位置
-			var px = this.player.offsetLeft;
-			var py = this.player.offsetTop;
+			var playerX = this.player.offsetLeft;
+			var playerY = this.player.offsetTop;
+
+			var playerWidth = this.player.width;
+			var playerHeight = this.player.height;
+
 			//敌机位置
-			var ex = enemy.offsetLeft;
-			var ey = enemy.offsetTop;
+			var enemyX = enemy.offsetLeft;
+			var enemyY = enemy.offsetTop;
+
+			var enemyWidth = enemy.width;
+			var enemyHeight = enemy.height;
+
 			//碰撞检测
-			if(py<ey+50 && px+100>ex && px<ex+100 && py>ey)
+			if(playerY<enemyY+enemyHeight && (playerX+playerWidth)>enemyX && playerX<(enemyX+enemyWidth)/* && playerY>enemyY-enemyHeight*/)
 			{
 				this.player.style.display = 'none';
 				enemy.style.display = 'none';
 
 				//爆炸
-				var img = document.createElement('img');
-				img.src = './images/boom.gif';
-				img.style.position = 'absolute';
-				img.style.top = (py-200)+'px';
-				img.style.left = (px-130)+'px';
-				img.width = '400';
-				img.height = '400';
-				game.appendChild(img);
+				var blowUp = document.createElement('img');
+				blowUp.src = './images/boom.gif';
+				blowUp.style.position = 'absolute';
+				blowUp.style.top = (playerY)+'px';
+				blowUp.style.left = (playerX)+'px';
+				blowUp.width = playerWidth*2;
+				blowUp.height = playerHeight*2;
+				game.appendChild(blowUp);
 				alert('游戏结束，你的分数：'+fenshu);
 				window.location.reload();
 			}
 		}
 
+	}
+
+	//设置可以放大招的数量
+	function setCanDazhao(num){
+		canDazhao = canDazhao+num;
+		document.getElementById('canDazhao').innerHTML = canDazhao;
 	}
 
 	//获取玩家
@@ -181,25 +241,37 @@ window.onload=function(){
 		    var oevent=window.event||arguments[0];
 		    var chufa=oevent.srcElement||oevent.target;
 		    var selfplanX=oevent.clientX-(player1.playerWidth/2);
-		    var selfplanY=oevent.clientY-(player1.playerHeight*1.2);
+		    var selfplanY=oevent.clientY-(player1.playerHeight/2);
 		    player1.position(selfplanX,selfplanY)
 		
 	},true);
 	
-	//发射大招
+	
 	document.onkeyup = function(ee)
 	{
 		var eve = ee || window.event;
+		//发射大招
 		if(eve.keyCode==70)
 		{
-			player1.doDazhao();
-
+			if(canDazhao>=canDazhaoIni){
+				player1.doDazhao();
+				setCanDazhao(-canDazhaoIni);
+			}
 		}
 	}
 
+	//发射大招
+	document.getElementById('dazhaoButton').addEventListener("click",function(){
+		if(canDazhao>=canDazhaoIni){
+			player1.doDazhao();
+			setCanDazhao(-canDazhaoIni);
+		}
+	},true);
+	
 	//循环判断子弹和敌机，如果是显示状态的，就对其进行移动
 	setInterval(function(){
-		for(var i=0;i<11;i++)
+
+		for(var i=0;i<bulletNum;i++)
 		{
 			var eshot = document.getElementById('eshot'+i);
 			//循环所有子弹，如果识别到子弹是显示状态，就进行发射
@@ -215,19 +287,19 @@ window.onload=function(){
 		}
 
 		//移动敌机
-		for(var i=0;i<6;i++)
+		for(var i=0;i<enemyNum;i++)
 		{
-			var ee = document.getElementById('e'+i);
+			var enemy = document.getElementById('e'+i);
 			//循环所有敌机，如果是显示状态，就进行移动
-			if(ee.style.display=='block')
+			if(enemy.style.display=='block')
 			{
-				player1.collision(ee);
-				player2.collision(ee);
-				ee.style.top = (ee.offsetTop+enemySpeed)+'px';
+				player1.collision(enemy);
+				player2.collision(enemy);
+				enemy.style.top = (enemy.offsetTop+enemySpeed)+'px';
 				//如果已经飞出窗口了，就对它进行隐藏
-				if(ee.offsetTop>windowHeight)
+				if(enemy.offsetTop>windowHeight)
 				{
-					ee.style.display = 'none';
+					enemy.style.display = 'none';
 				}
 			}
 		}
@@ -237,17 +309,23 @@ window.onload=function(){
 	//接收服务器给的敌机id，出现敌机
 	function showEnemy(i)
 	{
-		
 		// alert(i);
-		var ee = document.getElementById('e'+i);
+		var enemy = document.getElementById('e'+i);
+		var enemyHeight = enemy.height;
 
-		if(ee.style.display=='none')
+		var enemyLeft = windowWidth-enemy.width;
+
+		if(enemy.style.display=='none')
 		{	
-			ee.style.top = '-105px'
-			ee.style.left = Math.ceil(Math.random()*10000%400)+'px';
-			ee.style.display = 'block';
+			enemy.style.top = (0-enemyHeight)+'px'
+			enemy.style.left = Math.ceil(Math.random()*10000%enemyLeft)+'px';
+			enemy.style.display = 'block';
 		}
 	}
+
+	//解决爆炸的敌机不消失问题
+	//打中的敌机数组，把爆炸保存在数组中进行删除
+	var blowUpEnemy = new Array(enemyNum);
 
 	//检测是否击中
 	function checkHit(eshot,big=false)
@@ -256,43 +334,55 @@ window.onload=function(){
 		eshotX = eshot.offsetLeft;
 		eshotY = eshot.offsetTop;
 
-		for(var i=0;i<6;i++)
+		for(var i=0;i<enemyNum;i++)
 		{
 			var enemy = document.getElementById('e'+i);
 			if(enemy.style.display=='block')
 			{
 				//敌机位置
-				enemyX = enemy.offsetLeft+10;
-				enemyY = enemy.offsetTop+110;
+				enemyX = enemy.offsetLeft;
+				enemyY = enemy.offsetTop;
+
+				enemyHeight = enemy.height;
+				enemyWidth = enemy.width;
 				
 				//判断碰撞
-				if(eshotY<enemyY-30 && eshotX>enemyX && eshotX<enemyX+95 && eshotY>enemyY-50)
+				if(eshotY<enemyY+enemyHeight && eshotX>enemyX && eshotX<enemyX+enemyWidth && eshotY>enemyY-enemyHeight)
 				{
+					var varname = (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)+''+i;
+					
+					blowUpEnemy[varname] = document.createElement('img');
+					blowUpEnemy[varname].src = './images/boom.gif';
+					blowUpEnemy[varname].width = enemy.width+50;
+					blowUpEnemy[varname].height = enemy.height+50;
+					blowUpEnemy[varname].style.position = 'absolute';
+					blowUpEnemy[varname].style.top = enemyY+'px';
+					blowUpEnemy[varname].style.left = enemyX-20+'px';
+					game.appendChild(blowUpEnemy[varname]);
+					setTimeout(function(){
+						for(var k in blowUpEnemy){
+							game.removeChild(blowUpEnemy[k]);
+							delete blowUpEnemy[k];
+						}
+					},500);
+
 					enemy.style.display = 'none';
 					//如果不是大招，一颗炮弹只能打一架飞机
 					if(!big){
 						eshot.style.display = 'none';
 					}
 					
-					fenshu += 10;
-					document.getElementsByTagName('span')[0].innerHTML = fenshu+'分';
+					fenshu += 1;
+					setCanDazhao(1);
+					document.getElementsByTagName('span')[0].innerHTML = fenshu;
 					if(fenshu>3000)
 					{
-						alert('通关了');
-						game.style.background='url(./images/bg3.jpg) no-repeat 0px -836px';
-						fenshu = 0;
+						alert('通关了，你的分数：'+fenshu);
+						window.location.reload();
+						//backgroundImg.style.src='./images/bg3.jpg)';
+						//fenshu = 0;
 					}
-					var pp = document.createElement('img');
-					pp.src = './images/boom.gif';
-					pp.width = '250';
-					pp.height = '150';
-					pp.style.position = 'absolute';
-					pp.style.top = eshotY-120+'px';
-					pp.style.left = eshotX-100+'px';
-					game.appendChild(pp);
-					setTimeout(function(){
-						pp.style.display = 'none';
-					},500);
+					
 
 				}
 			}
@@ -310,7 +400,7 @@ window.onload=function(){
 	//模拟服务器返回一个敌机id
 	setInterval(function(){
 		
-		var i = Math.floor(Math.random()*100000%6);
+		var i = Math.floor(Math.random()*100000%enemyNum);
 		showEnemy(i);
 
 		//开火
